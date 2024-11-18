@@ -11,10 +11,11 @@ interface Props {}
 const TodoListPage = ({}: Props) => {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useRecoilState<TodoTask[]>(todoState);
+  const [filter, setFilter] = useState<"all" | "todo" | "done">("all");
 
   const addTask = () => {
     if (task.trim() !== "") {
-      setTasks([...tasks, { id: uuidv4(), text: task, isCompleted: false }]);
+      setTasks([...tasks, {id: uuidv4(), text: task, isCompleted: false}]);
       setTask("");
     }
   };
@@ -26,10 +27,20 @@ const TodoListPage = ({}: Props) => {
   const toggleTodo = (id: string) => {
     setTasks(
       tasks.map((task) =>
-        task.id === id ? { ...task, isCompleted: !task.isCompleted } : task,
+        task.id === id ? {...task, isCompleted: !task.isCompleted} : task,
       ),
     );
   };
+
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "todo") {
+      return !task.isCompleted;
+    }
+    if (filter === "done") {
+      return task.isCompleted;
+    }
+    return true;
+  });
 
   return (
     <PageContainer>
@@ -51,13 +62,18 @@ const TodoListPage = ({}: Props) => {
         />
         <TaskBox>
           <Tabs>
-            <Tab>All</Tab>
-            <Tab>To do</Tab>
-            <Tab>Done</Tab>
+            <Tab isActive={filter === "all"} onClick={() => setFilter("all")}>
+              >All</Tab>
+            <Tab isActive={filter === "todo"} onClick={() => setFilter("todo")}>
+              To do</Tab>
+            <Tab
+              isActive={filter === "done"}
+              onClick={() => setFilter("done")}
+            >Done</Tab>
           </Tabs>
-          <TaskCount>총 {tasks.length}개</TaskCount>
+          <TaskCount>총 {filteredTasks.length}개</TaskCount>
           <TaskList>
-            {tasks.map((task, index) => (
+            {filteredTasks.map((task, index) => (
               <TaskItem key={index}>
                 <TaskContent>
                   <HiddenCheckbox
@@ -65,11 +81,11 @@ const TodoListPage = ({}: Props) => {
                     checked={task.isCompleted}
                     onChange={() => toggleTodo(task.id)}
                   />
-                  <StyledCheckbox checked={task.isCompleted} />
+                  <StyledCheckbox checked={task.isCompleted}/>
                   <TaskText>{task.text}</TaskText>
                 </TaskContent>
                 <RemoveButton onClick={() => removeTask(index)}>
-                  <RemoveIcon src="/images/Close.svg" alt="delete" />
+                  <RemoveIcon src="/images/Close.svg" alt="delete"/>
                 </RemoveButton>
               </TaskItem>
             ))}
@@ -120,12 +136,12 @@ const Tabs = styled.div`
   margin-bottom: 1rem;
 `;
 
-const Tab = styled.button`
+const Tab = styled.button<{ isActive?: boolean }>`
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 5px;
-  background: #ebf4ff;
-  color: #2182f3;
+  background: ${({isActive}) => (isActive ? '#ebf4ff' : 'none')};
+  color: ${({isActive}) => (isActive ? '#2182f3' : 'inherit')};
   cursor: pointer;
 `;
 
