@@ -1,11 +1,35 @@
 "use client";
 import React, { useState } from "react";
 import styled from "@emotion/styled";
+import { useRecoilState } from "recoil";
+import { TodoTask } from "../../types/todoTask";
+import { todoState } from "../../recoil/taskState";
+import { v4 as uuidv4 } from "uuid";
 
 interface Props {}
 
 const TodoListPage = ({}: Props) => {
   const [task, setTask] = useState("");
+  const [tasks, setTasks] = useRecoilState<TodoTask[]>(todoState);
+
+  const addTask = () => {
+    if (task.trim() !== "") {
+      setTasks([...tasks, { id: uuidv4(), text: task, isCompleted: false }]);
+      setTask("");
+    }
+  };
+
+  const removeTask = (index: number) => {
+    setTasks(tasks.filter((_, i) => i !== index));
+  };
+
+  const toggleTodo = (id: string) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, isCompleted: !task.isCompleted } : task,
+      ),
+    );
+  };
 
   return (
     <PageContainer>
@@ -15,6 +39,7 @@ const TodoListPage = ({}: Props) => {
           type="text"
           value={task}
           onChange={(e) => setTask(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addTask()}
           placeholder="할 일을 입력해 주세요."
         />
         <TaskBox>
@@ -23,20 +48,24 @@ const TodoListPage = ({}: Props) => {
             <Tab>To do</Tab>
             <Tab>Done</Tab>
           </Tabs>
-          <TaskCount>총 1234개</TaskCount>
+          <TaskCount>총 {tasks.length}개</TaskCount>
           <TaskList>
-            <TaskItem>
-              <TaskContent>
-                <label>
-                  <HiddenCheckbox type="checkbox" />
-                  <StyledCheckbox />
-                  <TaskText>ㅁㄴㅇㄹ</TaskText>
-                </label>
-              </TaskContent>
-              <RemoveButton>
-                <RemoveIcon src="/images/Close.svg" alt="delete" />
-              </RemoveButton>
-            </TaskItem>
+            {tasks.map((task, index) => (
+              <TaskItem key={index}>
+                <TaskContent>
+                  <HiddenCheckbox
+                    type="checkbox"
+                    checked={task.isCompleted}
+                    onChange={() => toggleTodo(task.id)}
+                  />
+                  <StyledCheckbox checked={task.isCompleted} />
+                  <TaskText>{task.text}</TaskText>
+                </TaskContent>
+                <RemoveButton onClick={() => removeTask(index)}>
+                  <RemoveIcon src="/images/Close.svg" alt="delete" />
+                </RemoveButton>
+              </TaskItem>
+            ))}
           </TaskList>
         </TaskBox>
       </ContentWrapper>
@@ -123,33 +152,44 @@ const TaskItem = styled.li`
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem;
-  background: #f9f9f9;
   border-radius: 5px;
 `;
 
-const TaskContent = styled.div`
+const TaskContent = styled.label`
   display: flex;
   align-items: center;
+  cursor: pointer;
+  width: 100%;
 `;
 
 const HiddenCheckbox = styled.input`
   display: none;
 `;
 
-const StyledCheckbox = styled.span`
+const StyledCheckbox = styled.span<{ checked: boolean }>`
   width: 20px;
   height: 20px;
-  border: 1px solid #007bff;
+  border: 1px solid;
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   margin-right: 0.5rem;
   cursor: pointer;
+  background-color: ${({ checked }) => (checked ? "#007bff" : "transparent")};
+  border-color: ${({ checked }) => (checked ? "#007bff" : "#ccc")};
+
+  &::after {
+    content: url("/images/check.svg");
+    display: ${({ checked }) => (checked ? "block" : "none")};
+    transform: scale(0.7);
+  }
 `;
 
 const TaskText = styled.span`
   font-size: 1rem;
+  display: flex;
+  align-items: center;
 `;
 
 const RemoveButton = styled.button`
