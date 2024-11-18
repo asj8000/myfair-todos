@@ -38,8 +38,15 @@ const TodoListPage = ({}: Props) => {
         <TaskInput
           type="text"
           value={task}
-          onChange={(e) => setTask(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addTask()}
+          onChange={(e) => {
+            setTask(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addTask();
+            }
+          }}
           placeholder="할 일을 입력해 주세요."
         />
         <TaskBox>
