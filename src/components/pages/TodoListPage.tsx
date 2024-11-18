@@ -78,6 +78,7 @@ const TodoListPage = ({}: Props) => {
           onChange={handleInputChange}
           onKeyDown={handleInputKeyPress}
           placeholder="할 일을 입력해 주세요."
+          aria-label="task input"
         />
         <TaskBox>
           <Tabs>
