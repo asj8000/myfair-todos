@@ -2,7 +2,7 @@ import React from "react";
 import LayoutRecoil from "./layout.recoil";
 
 export const metadata = {
-  title: "myfair front pre-course",
+  title: "front pre-course",
   description: "todolist",
 };
 

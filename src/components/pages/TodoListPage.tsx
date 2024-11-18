@@ -5,6 +5,8 @@ import { useRecoilState } from "recoil";
 import { TodoTask } from "../../types/todoTask";
 import { todoState } from "../../recoil/taskState";
 import { v4 as uuidv4 } from "uuid";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Props {}
 
@@ -14,22 +16,45 @@ const TodoListPage = ({}: Props) => {
   const [filter, setFilter] = useState<"all" | "todo" | "done">("all");
 
   const addTask = () => {
-    if (task.trim() !== "") {
-      setTasks([...tasks, {id: uuidv4(), text: task, isCompleted: false}]);
-      setTask("");
+    if (task.trim() == "") {
+      return;
     }
+    if (tasks.filter((task) => !task.isCompleted).length >= 10) {
+      toast.error("u can't have more than 10 pending tasks. Stay focused!");
+      return;
+    }
+    setTasks([...tasks, { id: uuidv4(), text: task, isCompleted: false }]);
+    setTask("");
+    toast.success("task added successfully!");
   };
 
   const removeTask = (index: number) => {
     setTasks(tasks.filter((_, i) => i !== index));
+    toast.info("task deleted.");
   };
 
   const toggleTodo = (id: string) => {
     setTasks(
       tasks.map((task) =>
-        task.id === id ? {...task, isCompleted: !task.isCompleted} : task,
+        task.id === id ? { ...task, isCompleted: !task.isCompleted } : task,
       ),
     );
+    toast.success("task status updated");
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length > 20) {
+      toast.error("plz keep it under 20 characters");
+      return;
+    }
+    setTask(e.target.value);
+  };
+
+  const handleInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTask();
+    }
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -44,32 +69,27 @@ const TodoListPage = ({}: Props) => {
 
   return (
     <PageContainer>
+      <ToastContainer />
       <Title>To Do List</Title>
       <ContentWrapper>
         <TaskInput
           type="text"
           value={task}
-          onChange={(e) => {
-            setTask(e.target.value);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              addTask();
-            }
-          }}
+          onChange={handleInputChange}
+          onKeyDown={handleInputKeyPress}
           placeholder="할 일을 입력해 주세요."
         />
         <TaskBox>
           <Tabs>
             <Tab isActive={filter === "all"} onClick={() => setFilter("all")}>
-              >All</Tab>
+              All
+            </Tab>
             <Tab isActive={filter === "todo"} onClick={() => setFilter("todo")}>
-              To do</Tab>
-            <Tab
-              isActive={filter === "done"}
-              onClick={() => setFilter("done")}
-            >Done</Tab>
+              To do
+            </Tab>
+            <Tab isActive={filter === "done"} onClick={() => setFilter("done")}>
+              Done
+            </Tab>
           </Tabs>
           <TaskCount>총 {filteredTasks.length}개</TaskCount>
           <TaskList>
@@ -81,11 +101,11 @@ const TodoListPage = ({}: Props) => {
                     checked={task.isCompleted}
                     onChange={() => toggleTodo(task.id)}
                   />
-                  <StyledCheckbox checked={task.isCompleted}/>
+                  <StyledCheckbox checked={task.isCompleted} />
                   <TaskText>{task.text}</TaskText>
                 </TaskContent>
                 <RemoveButton onClick={() => removeTask(index)}>
-                  <RemoveIcon src="/images/Close.svg" alt="delete"/>
+                  <RemoveIcon src="/images/Close.svg" alt="delete" />
                 </RemoveButton>
               </TaskItem>
             ))}
@@ -140,8 +160,8 @@ const Tab = styled.button<{ isActive?: boolean }>`
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 5px;
-  background: ${({isActive}) => (isActive ? '#ebf4ff' : 'none')};
-  color: ${({isActive}) => (isActive ? '#2182f3' : 'inherit')};
+  background: ${({ isActive }) => (isActive ? "#ebf4ff" : "none")};
+  color: ${({ isActive }) => (isActive ? "#2182f3" : "inherit")};
   cursor: pointer;
 `;
 
@@ -193,7 +213,7 @@ const StyledCheckbox = styled.span<{ checked: boolean }>`
   width: 20px;
   height: 20px;
   border: 1px solid;
-  border-radius: 4px;
+  border-radius: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -205,7 +225,7 @@ const StyledCheckbox = styled.span<{ checked: boolean }>`
   &::after {
     content: url("/images/check.svg");
     display: ${({ checked }) => (checked ? "block" : "none")};
-    transform: scale(0.7);
+    transform: scale(0.6);
   }
 `;
 
