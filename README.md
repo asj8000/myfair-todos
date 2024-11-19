@@ -1,17 +1,44 @@
-# 프론트앤드 개발자 사전과제
-- todolist 만들기
-- 과제 제출 이메일: eddy@myfair.co
----
-### 실행
-```
+# Simple Todo
+
+## Introduction
+A frontend-only web service for efficiently managing daily tasks and goals. Please note that this is a client-side application and tasks will not persist after page refresh.
+
+## Key Features
+- Intuitive task management (Add/Delete/Complete)
+- Real-time task status notifications
+- Task filtering system
+- Simple checklist interface
+
+## Tech Stack
+- Next.js
+- TypeScript
+- Recoil (State Management)
+- Emotion (Styling)
+- Jest & React Testing Library (Testing)
+
+## Getting Started
+```bash
+# Install dependencies
 yarn install
+
+# Run development server (http://localhost:3000)
 yarn dev
+
+# Run tests
+yarn test
+
+# Build for production
+yarn build
 ```
----
-### 기능 요구사항
-- '할 일'은 20글자를 넘길 수 없습니다.
-- 처리가 안된 '할 일'은 10개를 넘을 수 없습니다.
-### 기타 요구사항
-- 유지보수가 쉽고 역할과 책임이 잘 분리된 코드를 작성해주세요.
-- 테스트 코드를 작성해주세요.
-- git을 활용하여 의미있는 작업 단위로 작업 히스토리를 남겨주세요.
+
+## User Guide
+### Task Management
+- Keep tasks concise within 20 characters
+- Active tasks are limited to 10 for efficient management
+- Completed tasks are marked with checkboxes
+- Tasks are stored in memory and will be cleared upon browser refresh
+
+### Filter Options
+- All: View all tasks
+- To do: View active tasks
+- Done: View completed tasks
